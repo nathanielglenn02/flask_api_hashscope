@@ -3,6 +3,8 @@ from models.users import register_user, login_user
 from models.categories import get_all_categories
 from models.topics import get_main_topics
 from models.platforms import get_platform_data
+import secrets
+import string
 
 app = Flask(__name__)
 
@@ -19,7 +21,9 @@ def login():
     data = request.json
     user = login_user(data['email'], data['password'])
     if user:
-        return jsonify({'message': 'Login successful', 'token': 'dummy_token'}), 200
+        # Membuat token random 12 karakter (gabungan huruf dan angka)
+        token = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
+        return jsonify({'message': 'Login successful', 'token': token}), 200
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
 
@@ -31,23 +35,49 @@ def categories():
 
 # Endpoint 4: Get Main Topics by Category
 @app.route('/api/main_topics/<int:category_id>', methods=['GET'])
-def main_topics(category_id):
-    topics = get_main_topics(category_id)
-    return jsonify(topics)
+def main_topics_by_category(category_id):
+    """
+    Endpoint untuk mendapatkan main topics berdasarkan ID kategori.
+    """
+    try:
+        # Panggil fungsi untuk mendapatkan data main topics berdasarkan kategori
+        topics = get_main_topics(category_id)
+        if not topics:
+            return jsonify({"message": "No topics found for this category"}), 404
+        return jsonify(topics)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 # Endpoint 5: Get Platform Data
 @app.route('/api/platform_data', methods=['GET'])
 def platform_data():
-    platform = request.args.get('platform')
-    category_id = request.args.get('category_id')
-    main_topic_id = request.args.get('main_topic_id')
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
+    """
+    Endpoint untuk mendapatkan data platform berdasarkan kategori, topik utama, dan rentang tanggal (opsional).
+    """
+    try:
+        # Ambil parameter dari request
+        platform = request.args.get('platform')
+        category_id = request.args.get('category_id', type=int)
+        main_topic_id = request.args.get('main_topic_id', type=int)
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
 
-    data = get_platform_data(platform, category_id, main_topic_id, start_date, end_date)
-    if data is None:
-        return jsonify({'message': 'Invalid platform'}), 400
-    return jsonify(data)
+        # Validasi input
+        if not platform or not category_id or not main_topic_id:
+            return jsonify({"error": "platform, category_id, and main_topic_id are required"}), 400
+
+        # Panggil fungsi untuk mendapatkan data
+        data = get_platform_data(platform, category_id, main_topic_id, start_date, end_date)
+        if data is None:
+            return jsonify({"error": "Invalid platform"}), 400
+
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

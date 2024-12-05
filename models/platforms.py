@@ -1,22 +1,52 @@
 from database import get_db_connection
 
 def get_platform_data(platform, category_id, main_topic_id, start_date=None, end_date=None):
+    """
+    Mendapatkan data platform (X, Web, YouTube) berdasarkan kategori, topik utama, dan rentang tanggal (opsional).
+    """
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
+
+    # Pemetaan tabel dan kolom join untuk setiap platform
     table_map = {
-        'X': 'x_datasets',
-        'YouTube': 'youtube_datasets',
-        'Web': 'web_datasets',
+        'X': {
+            'table': 'x_datasets',
+            'join_column': 'x_datasets_idx_datasets',
+            'id_column': 'idx_datasets'
+        },
+        'Web': {
+            'table': 'web_datasets',
+            'join_column': 'web_datasets_idweb_datasets',
+            'id_column': 'idweb_datasets'
+        },
+        'YouTube': {
+            'table': 'youtube_datasets',
+            'join_column': 'youtube_datasets_idyoutube_datasets',
+            'id_column': 'idyoutube_datasets'
+        }
     }
-    table = table_map.get(platform)
-    if not table:
+
+    platform_data = table_map.get(platform)
+    if not platform_data:
         return None
 
-    query = f"SELECT * FROM {table} WHERE main_categories_idmain_categories = %s AND main_topics_idmain_topics = %s"
+    table = platform_data['table']
+    join_column = platform_data['join_column']
+    id_column = platform_data['id_column']
+
+    # Query untuk platform yang dipilih
+    query = f"""
+    SELECT d.* 
+    FROM {table} d
+    JOIN main_topics mt ON mt.{join_column} = d.{id_column}
+    WHERE d.main_categories_idmain_categories = %s 
+      AND mt.idmain_topics = %s
+    """
     params = [category_id, main_topic_id]
 
+    # Jika rentang tanggal diberikan, tambahkan filter tanggal
     if start_date and end_date:
-        query += " AND created_at BETWEEN %s AND %s"
+        query += " AND d.created_at BETWEEN %s AND %s"
         params.extend([start_date, end_date])
 
     cursor.execute(query, params)
