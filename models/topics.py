@@ -7,7 +7,6 @@ def get_main_topics(category_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Query untuk menghitung frekuensi topik berdasarkan kategori yang dipilih
     query = """
     SELECT 
         mt.topics_name, 

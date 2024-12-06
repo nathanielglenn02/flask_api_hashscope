@@ -21,7 +21,6 @@ def login():
     data = request.json
     user = login_user(data['email'], data['password'])
     if user:
-        # Membuat token random 12 karakter (gabungan huruf dan angka)
         token = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
         return jsonify({'message': 'Login successful', 'token': token}), 200
     else:
@@ -40,7 +39,6 @@ def main_topics_by_category(category_id):
     Endpoint untuk mendapatkan main topics berdasarkan ID kategori.
     """
     try:
-        # Panggil fungsi untuk mendapatkan data main topics berdasarkan kategori
         topics = get_main_topics(category_id)
         if not topics:
             return jsonify({"message": "No topics found for this category"}), 404
@@ -57,18 +55,15 @@ def platform_data():
     Endpoint untuk mendapatkan data platform berdasarkan kategori, topik utama, dan rentang tanggal (opsional).
     """
     try:
-        # Ambil parameter dari request
         platform = request.args.get('platform')
         category_id = request.args.get('category_id', type=int)
         main_topic_id = request.args.get('main_topic_id', type=int)
         start_date = request.args.get('start_date')
         end_date = request.args.get('end_date')
 
-        # Validasi input
         if not platform or not category_id or not main_topic_id:
             return jsonify({"error": "platform, category_id, and main_topic_id are required"}), 400
 
-        # Panggil fungsi untuk mendapatkan data
         data = get_platform_data(platform, category_id, main_topic_id, start_date, end_date)
         if data is None:
             return jsonify({"error": "Invalid platform"}), 400
