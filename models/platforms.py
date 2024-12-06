@@ -7,7 +7,6 @@ def get_platform_data(platform, category_id, main_topic_id, start_date=None, end
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Pemetaan tabel dan kolom join untuk setiap platform
     table_map = {
         'X': {
             'table': 'x_datasets',
@@ -34,7 +33,6 @@ def get_platform_data(platform, category_id, main_topic_id, start_date=None, end
     join_column = platform_data['join_column']
     id_column = platform_data['id_column']
 
-    # Query untuk platform yang dipilih
     query = f"""
     SELECT d.* 
     FROM {table} d
@@ -44,7 +42,6 @@ def get_platform_data(platform, category_id, main_topic_id, start_date=None, end
     """
     params = [category_id, main_topic_id]
 
-    # Jika rentang tanggal diberikan, tambahkan filter tanggal
     if start_date and end_date:
         query += " AND d.created_at BETWEEN %s AND %s"
         params.extend([start_date, end_date])
