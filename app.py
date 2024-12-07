@@ -1,3 +1,4 @@
+from flask_bcrypt import Bcrypt
 from flask import Flask, jsonify, request
 from models.users import register_user, login_user
 from models.categories import get_all_categories
@@ -5,26 +6,36 @@ from models.topics import get_main_topics
 from models.platforms import get_platform_data
 import secrets
 import string
+from werkzeug.security import check_password_hash
 
 app = Flask(__name__)
+bcrypt = Bcrypt(app)
 
 # Endpoint 1: Register User
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.json
-    register_user(data['name'], data['email'], data['password'])
+    hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')  # Hash password
+    register_user(data['name'], data['email'], hashed_password)
     return jsonify({'message': 'User registered successfully'}), 201
 
 # Endpoint 2: Login User
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
-    user = login_user(data['email'], data['password'])
+    email = data.get('email')
+    password = data.get('password')
+
+    if not email or not password:
+        return jsonify({'message': 'Email and password are required'}), 400
+
+    user = login_user(email, password) 
     if user:
         token = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
         return jsonify({'message': 'Login successful', 'token': token}), 200
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
+
 
 # Endpoint 3: Get All Categories
 @app.route('/api/categories', methods=['GET'])

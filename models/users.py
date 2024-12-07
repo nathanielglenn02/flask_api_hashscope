@@ -1,4 +1,7 @@
+from flask_bcrypt import Bcrypt
 from database import get_db_connection
+
+bcrypt = Bcrypt()  
 
 def register_user(name, email, password):
     conn = get_db_connection()
@@ -10,7 +13,10 @@ def register_user(name, email, password):
 def login_user(email, password):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM users WHERE email = %s AND password = %s", (email, password))
+    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
     user = cursor.fetchone()
     conn.close()
-    return user
+
+    if user and bcrypt.check_password_hash(user['password'], password): 
+        return user
+    return None
