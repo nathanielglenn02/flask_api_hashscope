@@ -9,6 +9,7 @@ def get_main_topics(category_id):
 
     query = """
     SELECT 
+        MAX(mt.idmain_topics) AS topic_id,  -- Mengambil salah satu ID topik
         mt.topics_name, 
         COUNT(mt.topics_name) AS frequency
     FROM 
@@ -18,12 +19,11 @@ def get_main_topics(category_id):
     WHERE 
         xd.main_categories_idmain_categories = %s
     GROUP BY 
-        mt.topics_name
+        mt.topics_name  -- Hanya mengelompokkan berdasarkan nama topik
     ORDER BY 
         frequency DESC;
     """
     
-    # Eksekusi query dengan parameter ID kategori
     cursor.execute(query, (category_id,))
     topics = cursor.fetchall()
     conn.close()

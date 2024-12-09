@@ -59,6 +59,8 @@ def main_topics_by_category(category_id):
 
 
 
+
+
 # Endpoint 5: Get Platform Data
 @app.route('/api/platform_data', methods=['GET'])
 def platform_data():
