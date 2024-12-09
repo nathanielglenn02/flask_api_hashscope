@@ -7,7 +7,6 @@ def get_main_topics(category_id, page, limit):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Menghitung offset berdasarkan halaman dan limit
     offset = (page - 1) * limit
 
     query = """
@@ -17,10 +16,16 @@ def get_main_topics(category_id, page, limit):
         COUNT(mt.topics_name) AS frequency
     FROM 
         main_topics mt
-    JOIN 
+    LEFT JOIN 
         x_datasets xd ON mt.x_datasets_idx_datasets = xd.idx_datasets
+    LEFT JOIN 
+        web_datasets wd ON mt.web_datasets_idweb_datasets = wd.idweb_datasets
+    LEFT JOIN 
+        youtube_datasets yd ON mt.youtube_datasets_idyoutube_datasets = yd.idyoutube_datasets
     WHERE 
         xd.main_categories_idmain_categories = %s
+        OR wd.main_categories_idmain_categories = %s
+        OR yd.main_categories_idmain_categories = %s
     GROUP BY 
         mt.topics_name
     ORDER BY 
@@ -28,8 +33,7 @@ def get_main_topics(category_id, page, limit):
     LIMIT %s OFFSET %s;
     """
     
-    # Eksekusi query dengan parameter ID kategori, limit, dan offset
-    cursor.execute(query, (category_id, limit, offset))
+    cursor.execute(query, (category_id, category_id, category_id, limit, offset))
     topics = cursor.fetchall()
     conn.close()
     return topics
