@@ -47,15 +47,24 @@ def categories():
 @app.route('/api/main_topics/<int:category_id>', methods=['GET'])
 def main_topics_by_category(category_id):
     """
-    Endpoint untuk mendapatkan main topics berdasarkan ID kategori.
+    Endpoint untuk mendapatkan main topics berdasarkan ID kategori dengan paginasi.
     """
     try:
-        topics = get_main_topics(category_id)
+        # Ambil parameter 'page' dan 'limit' dari query string
+        page = request.args.get('page', 1, type=int)  # Default halaman pertama
+        limit = request.args.get('limit', 10, type=int)  # Default 10 item per halaman
+
+        # Ambil data main topics dengan paging
+        topics = get_main_topics(category_id, page, limit)
+        
         if not topics:
             return jsonify({"message": "No topics found for this category"}), 404
+
         return jsonify(topics)
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 

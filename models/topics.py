@@ -1,11 +1,14 @@
 from database import get_db_connection
 
-def get_main_topics(category_id):
+def get_main_topics(category_id, page, limit):
     """
-    Mengambil main topics berdasarkan ID kategori (contoh: Technology, Economy, Politics).
+    Mengambil main topics berdasarkan ID kategori dengan pagination.
     """
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
+
+    # Menghitung offset berdasarkan halaman dan limit
+    offset = (page - 1) * limit
 
     query = """
     SELECT 
@@ -19,12 +22,14 @@ def get_main_topics(category_id):
     WHERE 
         xd.main_categories_idmain_categories = %s
     GROUP BY 
-        mt.topics_name  -- Hanya mengelompokkan berdasarkan nama topik
+        mt.topics_name
     ORDER BY 
-        frequency DESC;
+        frequency DESC
+    LIMIT %s OFFSET %s;
     """
     
-    cursor.execute(query, (category_id,))
+    # Eksekusi query dengan parameter ID kategori, limit, dan offset
+    cursor.execute(query, (category_id, limit, offset))
     topics = cursor.fetchall()
     conn.close()
     return topics
