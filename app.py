@@ -11,6 +11,12 @@ from scraper_x import scrape_twitter_data, save_to_database, build_search_keywor
 from database import DB_CONFIG
 import os
 import pandas as pd
+from scraper_web import scrape_google_news
+from datetime import datetime
+import traceback
+from sqlalchemy import create_engine
+
+
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -133,6 +139,39 @@ def scrape_data():
         return jsonify({'error': str(ve)}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+# Endpoint 7: Scrape Google News
+@app.route('/api/scrape_news', methods=['POST'])
+def scrape_news():
+    try:
+        data = request.json
+        category = data.get('category', 'technology') 
+        filename = data.get('filename', f"{category}_news.csv")
+        max_results = data.get('max_results', 100)
+
+        if not category:
+            return jsonify({'error': 'category is required'}), 400
+
+        csv_file_path = scrape_google_news(category, max_results, filename)
+
+        df = pd.read_csv(csv_file_path)
+
+        df_selected = df[['full_text', 'source', 'created_at', 'url']].copy()
+        df_selected["idweb_datasets"] = None
+        df_selected["main_categories_idmain_categories"] = data.get('category_id', 1)  # ID kategori dari user
+        df_selected["created_at"] = pd.to_datetime(df_selected["created_at"], format="%a, %d %b %Y %H:%M:%S %Z").dt.strftime("%Y-%m-%d %H:%M:%S")
+
+        db_connection_url = f"mysql+pymysql://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}/{DB_CONFIG['database']}"
+        engine = create_engine(db_connection_url)
+
+        df_selected.to_sql("web_datasets", con=engine, if_exists="append", index=False)
+
+        return jsonify({'message': 'Scraping and saving data completed successfully'}), 200
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
 
 
 if __name__ == '__main__':
