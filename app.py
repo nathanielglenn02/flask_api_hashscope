@@ -7,9 +7,14 @@ from models.platforms import get_platform_data
 import secrets
 import string
 from werkzeug.security import check_password_hash
+from scraper_x import scrape_twitter_data, save_to_database, build_search_keyword
+from database import DB_CONFIG
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
+
+TWITTER_AUTH_TOKEN = "452993740006163e4a0ad979f52880f01d094556"
+
 
 # Endpoint 1: Register User
 @app.route('/api/register', methods=['POST'])
@@ -94,6 +99,35 @@ def platform_data():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# Endpoint 6 : Scrape Twitter Data
+@app.route('/api/scrape', methods=['POST'])
+def scrape_data():
+    try:
+        # Ambil data dari request
+        data = request.json
+        category_id = data.get('category_id')
+        filename = data.get('filename', 'tweets.csv')
+        limit = data.get('limit', 100)
+
+        # Validasi input
+        if not category_id:
+            return jsonify({'error': 'category_id is required'}), 400
+
+        # Bangun search keyword berdasarkan kategori dan tanggal
+        search_keyword = build_search_keyword(category_id)
+
+        # Lakukan scraping
+        df = scrape_twitter_data(search_keyword, filename, limit, TWITTER_AUTH_TOKEN)
+
+        # Simpan ke database
+        save_to_database(df, DB_CONFIG)
+
+        return jsonify({'message': 'Scraping and saving data completed successfully.'}), 200
+
+    except ValueError as ve:
+        return jsonify({'error': str(ve)}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 if __name__ == '__main__':
