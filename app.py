@@ -9,6 +9,8 @@ import string
 from werkzeug.security import check_password_hash
 from scraper_x import scrape_twitter_data, save_to_database, build_search_keyword
 from database import DB_CONFIG
+import os
+import pandas as pd
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -103,27 +105,30 @@ def platform_data():
 @app.route('/api/scrape', methods=['POST'])
 def scrape_data():
     try:
-        # Ambil data dari request
         data = request.json
         category_id = data.get('category_id')
-        filename = data.get('filename', 'tweets.csv')
+        filename = data.get('filename', 'x-technology.csv')
         limit = data.get('limit', 100)
 
-        # Validasi input
         if not category_id:
             return jsonify({'error': 'category_id is required'}), 400
 
-        # Bangun search keyword berdasarkan kategori dan tanggal
         search_keyword = build_search_keyword(category_id)
+        
+        filepath = scrape_twitter_data(search_keyword, filename, limit, TWITTER_AUTH_TOKEN)
 
-        # Lakukan scraping
-        df = scrape_twitter_data(search_keyword, filename, limit, TWITTER_AUTH_TOKEN)
+        df = pd.read_csv(filepath)
 
-        # Simpan ke database
-        save_to_database(df, DB_CONFIG)
+        if df is None:
+            print("DataFrame is None after scraping.")
+            return jsonify({'error': 'No data scraped.'}), 400
+
+        print("Scraped data ready for saving:")
+        print(df.head())
+        
+        save_to_database(df, DB_CONFIG, category_id)
 
         return jsonify({'message': 'Scraping and saving data completed successfully.'}), 200
-
     except ValueError as ve:
         return jsonify({'error': str(ve)}), 400
     except Exception as e:

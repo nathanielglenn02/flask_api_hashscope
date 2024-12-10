@@ -32,46 +32,67 @@ def build_search_keyword(category_id):
     search_keyword = f"{keyword} since:{start_date_str} until:{end_date_str} lang:id"
     return search_keyword
 
-# Function to scrape data using tweet-harvest
-def scrape_twitter_data(search_keyword, filename, limit, auth_token):
+def scrape_twitter_data(search_keyword, filepath, limit, auth_token):
     try:
+        csv_directory = os.path.join(os.getcwd(), "tweets-data")
+        filepath = os.path.join(csv_directory, filepath)
+
+        if not os.path.exists(csv_directory):
+            os.makedirs(csv_directory)
+
         command = [
-            "npx", "tweet-harvest@2.6.1",
-            "-o", filename,
-            "-s", search_keyword,
-            "--tab", "LATEST",
-            "-l", str(limit),
-            "--token", auth_token
-        ]
-        print(f"Running command: {' '.join(command)}")  # Tambahkan logging ini
-        subprocess.run(command, check=True)
+                    "npx", "tweet-harvest@2.6.1",
+                    "-o", filepath,
+                    "-s", search_keyword,
+                    "--tab", "LATEST",
+                    "-l", str(limit),
+                    "--token", auth_token
+                ]
+        print(f"Running command: {command}")  
+        subprocess.run(command, check=True, shell=True)
+
+        print(f"Checking for file: {filepath}")
+        if not os.path.exists(filepath):
+            raise RuntimeError(f"File {filepath} was not created.")
+        
+        print(f"File {filepath} created successfully.")
+        return filepath
     except Exception as e:
+        traceback.print_exc()
         raise RuntimeError(f"Error during scraping: {str(e)}")
 
 
-# Function to save scraped data to the database
-def save_to_database(df, db_config):
+def save_to_database(df, db_config, category_id):
+    """
+    Save scraped data to the database with a specific category ID.
+    
+    Args:
+        df (pd.DataFrame): DataFrame containing scraped data.
+        db_config (dict): Database configuration dictionary.
+        category_id (int): ID of the category to associate with the data.
+    """
     try:
-        # Database connection URL
         db_url = f"mysql+pymysql://{db_config['user']}:{db_config['password']}@{db_config['host']}/{db_config['database']}"
 
-        # Create SQLAlchemy engine
         engine = create_engine(db_url)
 
-        # Prepare the DataFrame
-        df_selected = df[[
+        required_columns = [
             "full_text", "favorite_count", "quote_count", "reply_count",
             "retweet_count", "username", "location", "created_at"
-        ]].copy()
+        ]
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            raise ValueError(f"Missing required columns: {missing_columns}")
 
-        # Add additional columns
-        df_selected["idx_datasets"] = None
-        df_selected["main_categories_idmain_categories"] = 1
+        df_selected = df[required_columns].copy()
+
+        df_selected["idx_datasets"] = None  
+        df_selected["main_categories_idmain_categories"] = category_id 
         df_selected["created_at"] = pd.to_datetime(df_selected["created_at"], format="%a %b %d %H:%M:%S %z %Y").dt.strftime("%Y-%m-%d %H:%M:%S")
 
-        # Save to database
         df_selected.to_sql("x_datasets", con=engine, if_exists="append", index=False)
         return {"message": "Data saved successfully"}
     except Exception as e:
         traceback.print_exc()
         raise RuntimeError(f"Error saving data to database: {str(e)}")
+
