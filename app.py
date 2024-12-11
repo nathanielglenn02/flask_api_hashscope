@@ -17,7 +17,7 @@ import traceback
 from sqlalchemy import create_engine
 from scraper_youtube import scrape_youtube_comments
 from topics_extraction import extract_topics
-
+from ai_topic_prediction import predict_future_topics_api
 
 
 app = Flask(__name__)
@@ -193,6 +193,12 @@ def scrape_youtube():
 @app.route('/api/extract_topics', methods=['POST'])
 def extract_topics_route():
     return extract_topics()
+
+# Endpoint 9: Predict Extraction
+@app.route('/api/predict_topics', methods=['GET'])
+def predict_topics():
+    return predict_future_topics_api()
+
 
 if __name__ == '__main__':
     app.run(debug=True)
