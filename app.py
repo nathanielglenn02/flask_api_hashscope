@@ -15,6 +15,7 @@ from scraper_web import scrape_google_news
 from datetime import datetime
 import traceback
 from sqlalchemy import create_engine
+from scraper_youtube import scrape_youtube_comments
 
 
 
@@ -77,10 +78,6 @@ def main_topics_by_category(category_id):
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
-
-
 
 
 # Endpoint 5: Get Platform Data
@@ -161,6 +158,7 @@ def scrape_news():
         df_selected["idweb_datasets"] = None
         df_selected["main_categories_idmain_categories"] = data.get('category_id', 1)  # ID kategori dari user
         df_selected["created_at"] = pd.to_datetime(df_selected["created_at"], format="%a, %d %b %Y %H:%M:%S %Z").dt.strftime("%Y-%m-%d %H:%M:%S")
+        print("Saving to database...")
 
         db_connection_url = f"mysql+pymysql://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}/{DB_CONFIG['database']}"
         engine = create_engine(db_connection_url)
@@ -172,6 +170,23 @@ def scrape_news():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+# Endpoint 8: Scrape YouTube Comments
+@app.route('/api/scrape_youtube', methods=['POST'])
+def scrape_youtube():
+    try:
+        data = request.json
+        search_keyword = data.get('search_keyword', 'politics')
+        max_results = data.get('max_results', 50)
+        max_comments = data.get('max_comments', 1500)
+
+        scrape_youtube_comments(search_keyword, max_results, max_comments, DB_CONFIG)
+
+        return jsonify({'message': 'Scraping and saving YouTube comments completed successfully'}), 200
+    except ValueError as ve:
+        return jsonify({'error': str(ve)}), 400
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
 
 
 if __name__ == '__main__':
