@@ -47,9 +47,17 @@ def login():
     user = login_user(email, password) 
     if user:
         token = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
-        return jsonify({'message': 'Login successful', 'token': token}), 200
+        return jsonify({
+            'message': 'Login successful',
+            'token': token,
+            'user': {
+                'name': user['name'],
+                'email': user['email']
+            }
+        }), 200
     else:
         return jsonify({'message': 'Invalid credentials'}), 401
+
 
 
 # Endpoint 3: Get All Categories
