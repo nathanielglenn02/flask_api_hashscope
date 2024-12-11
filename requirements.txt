@@ -7,7 +7,7 @@ tensorflow==2.14.0
 scikit-learn==1.3.0
 SQLAlchemy==2.0.21
 PyMySQL==1.1.0
-pygooglenews>=0.1.2
+pygooglenews==0.1.2
 google-api-python-client==2.97.0
 rake-nltk==1.0.4
 nltk==3.8.1
