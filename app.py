@@ -16,6 +16,7 @@ from datetime import datetime
 import traceback
 from sqlalchemy import create_engine
 from scraper_youtube import scrape_youtube_comments
+from topics_extraction import extract_topics
 
 
 
@@ -188,6 +189,10 @@ def scrape_youtube():
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+# Endpoint 9: Topics Extraction
+@app.route('/api/extract_topics', methods=['POST'])
+def extract_topics_route():
+    return extract_topics()
 
 if __name__ == '__main__':
     app.run(debug=True)
