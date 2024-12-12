@@ -202,7 +202,7 @@ def scrape_youtube():
 def extract_topics_route():
     return extract_topics()
 
-# Endpoint 9: Predict Extraction
+# Endpoint 10: Predict Extraction
 @app.route('/api/predict_topics', methods=['GET'])
 def predict_topics():
     return predict_future_topics_api()

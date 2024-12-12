@@ -1,80 +1,11 @@
-step,top_topic,predicted_frequency
-1,pusat dakwah murtadha,"pusat dakwah murtadha    9.998133
-pusat dakwah murtadha    4.704556
-pusat dakwah murtadha    1.141200
-pusat dakwah murtadha    5.484887
-Name: 0, dtype: float64"
-2,inside business 2024 women,"inside business 2024 women    6.348406
-inside business 2024 women    6.008423
-inside business 2024 women    2.027502
-inside business 2024 women    0.865440
-inside business 2024 women    1.916891
-inside business 2024 women    3.381692
-inside business 2024 women    8.385224
-inside business 2024 women    1.836949
-inside business 2024 women    7.352666
-inside business 2024 women    9.164521
-inside business 2024 women    4.854567
-inside business 2024 women    7.453416
-inside business 2024 women    5.426385
-inside business 2024 women    8.141424
-inside business 2024 women    5.733669
-inside business 2024 women    6.842025
-inside business 2024 women    6.395308
-inside business 2024 women    6.919213
-inside business 2024 women    5.249689
-inside business 2024 women    9.640177
-inside business 2024 women    1.810238
-inside business 2024 women    7.927164
-inside business 2024 women    9.742532
-inside business 2024 women    2.102485
-inside business 2024 women    2.961984
-inside business 2024 women    4.647521
-inside business 2024 women    0.656480
-inside business 2024 women    4.161830
-inside business 2024 women    9.998549
-inside business 2024 women    4.434320
-inside business 2024 women    0.483385
-inside business 2024 women    9.438642
-inside business 2024 women    3.949332
-inside business 2024 women    6.933608
-inside business 2024 women    1.870262
-inside business 2024 women    8.711611
-inside business 2024 women    6.380929
-inside business 2024 women    9.075549
-inside business 2024 women    2.121383
-inside business 2024 women    4.463582
-inside business 2024 women    3.634430
-inside business 2024 women    7.527361
-inside business 2024 women    7.591079
-inside business 2024 women    3.272607
-inside business 2024 women    1.169512
-inside business 2024 women    4.748150
-inside business 2024 women    7.731225
-inside business 2024 women    2.528166
-inside business 2024 women    9.207936
-inside business 2024 women    2.858903
-inside business 2024 women    0.364742
-inside business 2024 women    5.033292
-inside business 2024 women    2.558419
-inside business 2024 women    1.295166
-inside business 2024 women    4.726395
-inside business 2024 women    6.112324
-inside business 2024 women    1.874723
-inside business 2024 women    4.357562
-inside business 2024 women    0.153391
-inside business 2024 women    2.123329
-Name: 1, dtype: float64"
-3,material,9.994871769675207
-4,breaking performance,9.998115812063865
-5,cleerly collects $ 106m,"cleerly collects $ 106m    3.240686
-cleerly collects $ 106m    8.342685
-cleerly collects $ 106m    0.934123
-cleerly collects $ 106m    1.622722
-cleerly collects $ 106m    9.999671
-Name: 4, dtype: float64"
-6,smg prestasi ini dpt dipertahankan hingga 2024,9.996247132312726
-7,globenewswire,9.999926404719412
-8,mereka selalu inget hari bahagia kuu,9.999760414865111
-9,act pretty much exactly,9.997961764813136
-10,cyber bulletin fourtrezz,9.999413629823197
+step,top_topic,previous_frequency,predicted_frequency,change_percentage
+1,# acceleratingrenewableenergy1483,1,-0.0022374875843524933,-100.22
+2,# bernamanews,2,-0.0027188528329133987,-100.14
+3,# damritinjauartdichina,1,-0.0033754073083400726,-100.34
+4,# dt # daaruttauhiid # ziswaf,1,-0.004389319568872452,-100.44
+5,# filipina # wpsnews,2,-0.005853177979588509,-100.29
+6,# gameandroid # erolabs,2,-0.007965253666043282,-100.4
+7,# icpmalaysia # blockchainprivacy # web3malaysia,2,-0.009761283174157143,-100.49
+8,# idncitizen # promedia,1,-0.012148488312959671,-101.21
+9,# kitaselangor # ses2024,2,-0.015360807999968529,-100.77
+10,# kualalumpur suruhanjaya pencegahan rasuah malaysia,1,-0.019607217982411385,-101.96
