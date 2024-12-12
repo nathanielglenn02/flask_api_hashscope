@@ -36,7 +36,7 @@ def fetch_main_topics():
         traceback.print_exc()
         return pd.DataFrame()
 
-def predict_future_topics(data, model, topics, steps, sequence_length):
+def predict_future_topics(data, model, topics, steps, sequence_length, historical_data):
     try:
         future_predictions = []
         current_input = data[-sequence_length:].reshape(1, sequence_length, 1)
@@ -46,16 +46,19 @@ def predict_future_topics(data, model, topics, steps, sequence_length):
             future_predictions.append(next_step_value)
             current_input = np.append(current_input[:, 1:, :], [[[next_step_value]]], axis=1)
 
-        future_predictions = np.random.rand(steps, len(topics)) * 10
-        predictions_df = pd.DataFrame(future_predictions, columns=topics)
+        predictions_df = pd.DataFrame(future_predictions, columns=["predicted_frequency"])
 
         future_trends = []
-        for step, row in predictions_df.iterrows():
-            top_topic_idx = row.idxmax()
+        for step, (predicted_frequency, topic) in enumerate(zip(predictions_df["predicted_frequency"], topics)):
+            previous_frequency = historical_data[step] if step < len(historical_data) else 0
+            change_percentage = ((predicted_frequency - previous_frequency) / previous_frequency * 100) if previous_frequency > 0 else None
+
             future_trends.append({
                 "step": step + 1,
-                "top_topic": top_topic_idx,
-                "predicted_frequency": row[top_topic_idx]
+                "top_topic": topic,
+                "previous_frequency": previous_frequency,
+                "predicted_frequency": predicted_frequency,
+                "change_percentage": round(change_percentage, 2) if change_percentage is not None else None
             })
 
         return pd.DataFrame(future_trends)
@@ -89,7 +92,7 @@ def predict_future_topics_api():
         model.fit(X, y, epochs=20, batch_size=16, verbose=0)
 
         steps = 10
-        future_trends = predict_future_topics(scaled_data, model, topics, steps, sequence_length)
+        future_trends = predict_future_topics(scaled_data, model, topics, steps, sequence_length, historical_data)
 
         if future_trends.empty:
             return jsonify({"error": "Failed to predict future trends."}), 500
