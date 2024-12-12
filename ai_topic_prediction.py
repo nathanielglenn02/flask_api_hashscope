@@ -51,7 +51,7 @@ def predict_future_topics(data, model, topics, steps, sequence_length, historica
         future_trends = []
         for step, (predicted_frequency, topic) in enumerate(zip(predictions_df["predicted_frequency"], topics)):
             previous_frequency = historical_data[step] if step < len(historical_data) else 0
-            change_percentage = ((predicted_frequency - previous_frequency) / previous_frequency * 100) if previous_frequency > 0 else None
+            change_percentage = ((previous_frequency - predicted_frequency) / previous_frequency * 100) if previous_frequency > 0 else None
 
             future_trends.append({
                 "step": step + 1,
