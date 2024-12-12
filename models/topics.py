@@ -13,7 +13,10 @@ def get_main_topics(category_id, page, limit):
     SELECT 
         MAX(mt.idmain_topics) AS topic_id,  -- Mengambil salah satu ID topik
         mt.topics_name, 
-        COUNT(mt.topics_name) AS frequency
+        COUNT(mt.topics_name) AS frequency,
+        MAX(mt.x_datasets_idx_datasets) AS x_datasets_idx_datasets,  -- Tambahkan kolom ini
+        MAX(mt.web_datasets_idweb_datasets) AS web_datasets_idweb_datasets,  -- Tambahkan kolom ini
+        MAX(mt.youtube_datasets_idyoutube_datasets) AS youtube_datasets_idyoutube_datasets  -- Tambahkan kolom ini
     FROM 
         main_topics mt
     LEFT JOIN 
@@ -37,3 +40,4 @@ def get_main_topics(category_id, page, limit):
     topics = cursor.fetchall()
     conn.close()
     return topics
+
